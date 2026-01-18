@@ -1,0 +1,13 @@
+# Data & DB (no subir)
+data/raw/
+data/sqlite/
+*.db
+
+# Python
+__pycache__/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
