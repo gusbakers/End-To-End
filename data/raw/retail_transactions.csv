@@ -1,0 +1,31 @@
+order_id,user_id,order_date,order_dow,order_hour,product_id,product_name,department,quantity,reordered
+1,101,2024-01-03,2,10,101,Organic Bananas,Produce,2,0
+2,102,2024-01-03,2,11,102,Whole Milk,Dairy,1,0
+3,101,2024-01-05,4,9,101,Organic Bananas,Produce,3,1
+4,103,2024-01-06,5,14,103,Brown Eggs,Dairy,1,0
+5,104,2024-01-06,5,16,104,Strawberries,Produce,2,0
+6,101,2024-01-08,0,10,101,Organic Bananas,Produce,1,1
+7,105,2024-01-08,0,12,105,Avocado Hass,Produce,2,0
+8,106,2024-01-09,1,18,106,Greek Yogurt,Dairy,1,0
+9,102,2024-01-10,2,9,102,Whole Milk,Dairy,2,1
+10,107,2024-01-10,2,19,107,Chicken Breast,Meat,1,0
+11,108,2024-01-11,3,8,108,Ground Coffee,Beverages,1,0
+12,101,2024-01-12,4,11,101,Organic Bananas,Produce,2,1
+13,109,2024-01-12,4,17,109,Almond Milk,Beverages,1,0
+14,110,2024-01-13,5,13,110,Pasta Penne,Pantry,3,0
+15,104,2024-01-13,5,16,104,Strawberries,Produce,1,1
+16,102,2024-01-15,0,10,102,Whole Milk,Dairy,2,1
+17,103,2024-01-15,0,15,103,Brown Eggs,Dairy,1,1
+18,101,2024-01-17,2,9,101,Organic Bananas,Produce,4,1
+19,105,2024-01-18,3,12,105,Avocado Hass,Produce,1,1
+20,108,2024-01-18,3,18,108,Ground Coffee,Beverages,1,1
+21,109,2024-01-19,4,14,109,Almond Milk,Beverages,2,1
+22,110,2024-01-20,5,11,110,Pasta Penne,Pantry,2,1
+23,106,2024-01-21,6,10,106,Greek Yogurt,Dairy,1,1
+24,107,2024-01-21,6,19,107,Chicken Breast,Meat,2,1
+25,101,2024-01-22,0,9,101,Organic Bananas,Produce,3,1
+26,102,2024-01-22,0,11,102,Whole Milk,Dairy,1,1
+27,104,2024-01-23,1,16,104,Strawberries,Produce,2,1
+28,105,2024-01-24,2,12,105,Avocado Hass,Produce,1,1
+29,108,2024-01-25,3,8,108,Ground Coffee,Beverages,1,1
+30,110,2024-01-26,4,14,110,Pasta Penne,Pantry,2,1
