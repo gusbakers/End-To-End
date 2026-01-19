@@ -9,7 +9,7 @@ SELECT
     WHEN 5 THEN 'Fri'
     WHEN 6 THEN 'Sat'
   END AS dow_name,
-  COUNT(*) AS total_orders
-FROM orders_clean
+  COUNT(DISTINCT order_id) AS total_orders
+FROM order_products_clean
 GROUP BY order_dow
 ORDER BY order_dow;
