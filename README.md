@@ -8,7 +8,7 @@
 
 I kept seeing Instacart mentioned in data job descriptions — “analyze purchase patterns”, “improve reorder predictions” — so I figured I’d actually dig into their public dataset and see what that work looks like in practice.
 
-The dataset is from a [2017 Kaggle competition](https://www.kaggle.com/competitions/instacart-market-basket-analysis/data): 3.4M orders, ~200K users, 50K products.I focused on SQL analytics — the kind of questions an ops or inventory team would actually ask.
+The dataset is from a [2017 Kaggle competition](https://www.kaggle.com/competitions/instacart-market-basket-analysis/data): 3.4M orders, ~200K users, 50K products. I focused on SQL analytics — the kind of questions an ops or inventory team would actually ask.
 
 -----
 
