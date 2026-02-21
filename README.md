@@ -6,71 +6,47 @@
 
 -----
 
-Online grocery is an interesting data problem because the purchase patterns are so predictable — and that predictability is actually the business model. If you know that someone reorders almond milk every 9 days, you can time promotions, pre-stage inventory, and reduce stockouts. That’s not a data science problem. That’s a SQL problem.
+I kept seeing Instacart mentioned in data job descriptions — “analyze purchase patterns”, “improve reorder predictions” — so I figured I’d actually dig into their public dataset and see what that work looks like in practice.
 
-I used the [Instacart 2017 dataset](https://www.kaggle.com/competitions/instacart-market-basket-analysis/data) — 3.4 million orders, 200K users, 50K products — to build an analytical pipeline focused on exactly that: understanding reorder behavior, demand timing, and which products actually drive basket size.
-
------
-
-## The questions I actually tried to answer
-
-Not “explore the data” in the abstract sense. Specific questions an inventory or ops team would care about:
-
-- Which products do people come back for, vs which ones they try once and never buy again?
-- What time of day and day of week should you prioritize fulfillment staffing?
-- Which departments have the highest retention signal (reorder rate as a loyalty proxy)?
-- Are there products that consistently anchor large baskets?
-
-The answers are below in the insights section. The queries are in `sql/`.
+The dataset is from a [2017 Kaggle competition](https://www.kaggle.com/competitions/instacart-market-basket-analysis/data): 3.4M orders, ~200K users, 50K products. No ML here. I focused on SQL analytics — the kind of questions an ops or inventory team would actually ask.
 
 -----
 
-## What this project is
+## What I was trying to figure out
 
-An end-to-end analytical pipeline:
-
-1. Raw CSVs ingested into SQLite
-1. Data cleaned and validated with Python
-1. SQL queries run against the database to generate KPIs
-1. Results exported as charts to `/outputs`
-1. Everything tied together in a demo notebook
-
-It’s not a machine learning project. It’s a data engineering + SQL analytics project, which is honestly more representative of what a data analyst or junior data engineer does day-to-day.
+- Which products do people reliably come back for vs. buy once and forget?
+- When are orders actually placed — and what does that mean for staffing?
+- Do departments have meaningfully different reorder rates?
+- Is basket size correlated with anything actionable (like organic produce)?
 
 -----
 
-## Project structure
+## How it’s structured
 
 ```
 instacart-analytics/
-│
-├── data/
-│   └── raw/               # not committed (see below for download)
-│
+├── data/raw/                        # not committed — see setup below
 ├── sql/
 │   ├── 01_reorder_rates.sql
 │   ├── 02_demand_by_hour.sql
 │   ├── 03_top_products.sql
 │   ├── 04_basket_analysis.sql
 │   └── 05_department_retention.sql
-│
 ├── notebooks/
-│   └── instacart_demo.ipynb   # full walkthrough with outputs
-│
-├── outputs/               # exported charts (committed)
+│   └── instacart_demo.ipynb
+├── outputs/                         # charts, committed
 ├── src/
-│   ├── ingest.py          # loads CSVs into SQLite
-│   └── clean.py           # validation and deduplication
-│
+│   ├── ingest.py
+│   └── clean.py
 ├── requirements.txt
 └── run_pipeline.py
 ```
 
+The pipeline goes: CSVs → SQLite → SQL queries → exported charts. `run_pipeline.py` handles all of it.
+
 -----
 
-## Getting it running
-
-**1. Clone the repo**
+## Setup
 
 ```bash
 git clone https://github.com/yourusername/instacart-analytics.git
@@ -78,101 +54,83 @@ cd instacart-analytics
 pip install -r requirements.txt
 ```
 
-**2. Download the data**
+Download the data from Kaggle (free account needed):
+https://www.kaggle.com/competitions/instacart-market-basket-analysis/data
 
-Get the dataset from Kaggle (free account required):
-[kaggle.com/competitions/instacart-market-basket-analysis/data](https://www.kaggle.com/competitions/instacart-market-basket-analysis/data)
-
-Download and unzip into `data/raw/`. You should have:
+Unzip into `data/raw/` so you have:
 
 ```
-data/raw/
-├── orders.csv
-├── order_products__prior.csv
-├── order_products__train.csv
-├── products.csv
-├── departments.csv
-└── aisles.csv
+orders.csv
+order_products__prior.csv
+order_products__train.csv
+products.csv
+departments.csv
+aisles.csv
 ```
 
-**3. Run the pipeline**
+Then:
 
 ```bash
 python run_pipeline.py
-```
-
-This ingests the CSVs into a local SQLite database, runs all the SQL queries, and exports charts to `/outputs`.
-
-**4. Explore the notebook**
-
-```bash
 jupyter notebook notebooks/instacart_demo.ipynb
 ```
 
 -----
 
-## Key findings
+## What I found
 
-**Reorder rate by department**
+**Reorder rates by department**
+Produce sits at ~65% reorder rate. Personal care is around 38%. Makes sense — people buy bananas every week, they don’t reorder face wash at the same cadence. The gap is useful for inventory planning: tight stock management for high-reorder categories, more slack for low-reorder ones.
 
-Produce has the highest reorder rate at 65%, which makes sense — people buy bananas and avocados every week. Personal care is at 38%. That gap matters for inventory planning: high-reorder categories need tight stock management, low-reorder categories have more tolerance for variability.
-
-**Demand by hour**
-
-Orders peak between 10am and 2pm on Saturdays and Sundays. The lowest volume is weekday nights (8pm–midnight). If you’re allocating fulfillment capacity, Sunday morning is where you need to be.
+**Order timing**
+Peak is 10am–2pm on weekends. Weeknight orders (8pm–midnight) basically drop off. Top hours:
 
 ```
-Top hours for order volume:
-  10:00 →  284,728 orders
-  11:00 →  268,916 orders
-  14:00 →  231,482 orders
-  15:00 →  218,543 orders
+10:00 → 284,728 orders
+11:00 → 268,916 orders
+14:00 → 231,482 orders
 ```
 
-**Top reordered products**
+If you’re thinking about fulfillment capacity, Sunday morning is where it matters.
 
-Bananas are number one by a wide margin — not just volume, but reorder rate. They’re what I’d call an anchor product: the thing people specifically open the app to buy, then fill the rest of the basket around. Organic milk, Greek yogurt, and avocados follow a similar pattern.
+**Bananas are a weird anchor product**
+They’re #1 in both volume and reorder rate. My read: people open the app specifically to buy bananas and fill the basket around that. Organic milk, Greek yogurt, avocados follow a similar pattern.
 
-**Basket size**
-
-Orders with organic produce items average 1.4x the basket size of orders without. That’s a promotion angle: lead with organic, not with discounts.
+**Organic produce and basket size**
+Orders that include organic produce items average ~1.4x the basket size of orders without. That’s an interesting promotional angle — lead with organic, not discounts.
 
 -----
 
-## On using SQLite instead of PostgreSQL
+## One thing that surprised me
 
-Honest answer: SQLite was the right call for this specific project.
+The reorder interval data was more consistent than I expected. For top products, the median days-between-orders is pretty tight — most people reorder bananas every 7 days, not “roughly weekly.” That kind of regularity is actually useful for demand forecasting.
 
-The dataset is a static snapshot — 3.4M rows, no new data coming in, single user (me). Setting up a PostgreSQL server to analyze a CSV dump would have been unnecessary overhead. SQLite handles this volume fine and runs anywhere with zero configuration.
-
-If this were a live system with multiple analysts querying it or a pipeline refreshing daily, I’d use PostgreSQL. That’s a different problem. This isn’t that.
+Also: `add_to_cart_order` ended up being a decent signal. Products added first tend to have higher reorder rates — people build routines around how they shop.
 
 -----
 
-## What surprised me
+## Why SQLite and not Postgres
 
-The reorder interval data was more consistent than I expected. For top products, the median days-between-orders is surprisingly tight — most people reorder bananas every 7 days, not “roughly weekly.” That kind of behavioral regularity is genuinely useful for demand forecasting.
+The dataset is a static snapshot, single user, no ingestion happening. Standing up a Postgres server for this would’ve been overkill. SQLite handles 3.4M rows fine and runs anywhere.
 
-Also, the add-to-cart order column (`add_to_cart_order`) turned out to be an interesting signal. Products added first tend to have higher reorder rates. People build muscle memory around how they shop.
+If this were a live pipeline with multiple analysts, Postgres would make sense. This isn’t that.
 
 -----
 
 ## What I’d do differently
 
-The SQL is all flat files right now. If I revisited this, I’d use dbt to add proper staging and mart layers — raw → cleaned → business-ready. The queries would be easier to test and the lineage would be clearer.
+The SQL is all flat files right now. I’d use dbt if I revisited this — proper staging/mart layers would make the queries easier to test and the lineage clearer.
 
-I’d also build a simple dashboard instead of static chart exports. Matplotlib works but Plotly with a Streamlit front-end would be much more shareable.
+I’d also swap the Matplotlib exports for a Streamlit dashboard. Static charts work but they’re harder to share.
 
 -----
 
 ## Charts
 
-All exported visualizations are in `/outputs`. The notebook renders them inline with context.
+All visualizations are in `/outputs`. The notebook has them inline with context.
 
 -----
 
-## Connect
+📧 gaft-2727@outlook.com
 
-Questions or feedback welcome.
-
-📧 gaft-2727@outlook.com  
+ 
